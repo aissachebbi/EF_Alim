@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: cb-msg-feeder
+  datasource:
+    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/XEPDB1}
+    username: ${DB_USERNAME:ACETP}
+    password: ${DB_PASSWORD:ACETP}
+    driver-class-name: ${DB_DRIVER:oracle.jdbc.OracleDriver}
+
+app:
+  feeder:
+    poll-interval-ms: ${FEEDER_POLL_INTERVAL_MS:10000}
+    max-messages-per-run: ${FEEDER_MAX_MESSAGES_PER_RUN:1000}
+    cb-msg-sequence-name: ${FEEDER_CB_MSG_SEQ:ACETP.SEQ_CB_MSG_DB_ID}
+    cl-business-file-sequence-name: ${FEEDER_CL_FILE_SEQ:ACETP.SEQ_CL_BUSINESS_FILE_ID}
