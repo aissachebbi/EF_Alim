@@ -3,14 +3,14 @@
 ## Objectif
 
 Application Spring Boot qui exécute un poller configurable et alimente:
-- `ACETP.CB_MSG_FEEDER`
-- `ACETP.CL_BUSINESS_MTM_IN_FEEDER`
+- `ACETP.CB_MSG`
+- `ACETP.CL_BUSINESS_MTM_IN`
 
 À chaque cycle:
 1. Tirer un volume aléatoire `1..N` (`N` configurable).
-2. Insérer ce volume dans `CB_MSG_FEEDER` avec les champs obligatoires.
-3. Insérer le même volume dans `CL_BUSINESS_MTM_IN_FEEDER` avec la référence `CB_MSG_DB_ID`.
-4. Renseigner explicitement les dates en DateTime (`CREATION_DATE`, `UPDATING_DATE` dans `CB_MSG_FEEDER`, et `CREATION_DATE` dans `CL_BUSINESS_MTM_IN_FEEDER`).
+2. Insérer ce volume dans `CB_MSG` avec les champs obligatoires.
+3. Insérer le même volume dans `CL_BUSINESS_MTM_IN` avec la référence `CB_MSG_DB_ID`.
+4. Renseigner explicitement les dates en DateTime (`CREATION_DATE`, `UPDATING_DATE` dans `CB_MSG`, et `CREATION_DATE` dans `CL_BUSINESS_MTM_IN`).
 
 ## Stack technique
 
@@ -25,11 +25,14 @@ Application Spring Boot qui exécute un poller configurable et alimente:
 La base est configurable via `src/main/resources/application.yml` (ou variables d’environnement):
 
 ```yaml
+server:
+  port: 8082
+
 spring:
   datasource:
-    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/XEPDB1}
+    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/FREEPDB1}
     username: ${DB_USERNAME:ACETP}
-    password: ${DB_PASSWORD:ACETP}
+    password: ${DB_PASSWORD:Aissa1000*}
     driver-class-name: ${DB_DRIVER:oracle.jdbc.OracleDriver}
 
 app:
@@ -42,17 +45,19 @@ app:
 
 ## Scripts SQL manuels (sans composant Java)
 
+Les tables existent déjà en base dans votre contexte. Les scripts restent fournis pour alignement/rejeu manuel si nécessaire.
+
 Les scripts SQL sont fournis séparément pour exécution manuelle:
 
 - `src/main/resources/sql/ddl-feeder.sql`
   - crée les séquences Oracle utilisées par l'application (`ACETP.SEQ_CB_MSG_DB_ID`, `ACETP.SEQ_CL_BUSINESS_FILE_ID`)
-  - crée `ACETP.CB_MSG_FEEDER`
-  - crée `ACETP.CL_BUSINESS_MTM_IN_FEEDER`
-  - crée les index feeder
+  - crée `ACETP.CB_MSG`
+  - crée `ACETP.CL_BUSINESS_MTM_IN`
+  - crée les index alignés au DDL fourni
 - `src/main/resources/sql/truncate-feeder.sql`
   - purge les 2 tables via `TRUNCATE TABLE`
 - `src/main/resources/sql/drop-feeder.sql`
-  - supprime les 2 tables feeder (`DROP ... CASCADE CONSTRAINTS PURGE`)
+  - supprime les 2 tables (`DROP ... CASCADE CONSTRAINTS PURGE`)
   - supprime aussi les 2 séquences feeder (`DROP SEQUENCE`)
 
 Exemple d'ordre manuel:
