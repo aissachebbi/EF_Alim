@@ -21,7 +21,7 @@ public class CbMsgRepository {
 
         jdbcTemplate.update(
                 """
-                INSERT INTO ACETP.CB_MSG_FEEDER (
+                INSERT INTO ACETP.CB_MSG (
                     CB_MSG_DB_ID,
                     BRANCH_DB_ID,
                     VERSION_NUM,
@@ -29,8 +29,10 @@ public class CbMsgRepository {
                     TECHNICAL_TYPE,
                     STATUS_TYPE,
                     CREATION_DATE,
-                    UPDATING_DATE
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    UPDATING_DATE,
+                    EZF_PROC_STATUS,
+                    EZF_TRY_COUNT
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 record.cbMsgDbId(),
                 record.branchDbId(),
@@ -39,7 +41,9 @@ public class CbMsgRepository {
                 "N",
                 "NEW",
                 now,
-                now
+                now,
+                "NEW",
+                0
         );
     }
 }

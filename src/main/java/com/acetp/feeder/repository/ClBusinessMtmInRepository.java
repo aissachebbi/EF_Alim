@@ -20,7 +20,7 @@ public class ClBusinessMtmInRepository {
 
         jdbcTemplate.update(
                 """
-                INSERT INTO ACETP.CL_BUSINESS_MTM_IN_FEEDER (
+                INSERT INTO ACETP.CL_BUSINESS_MTM_IN (
                     FILE_ID,
                     MSG_ID,
                     CB_MSG_DB_ID,
