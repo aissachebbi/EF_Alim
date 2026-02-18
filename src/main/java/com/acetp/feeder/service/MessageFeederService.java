@@ -40,17 +40,18 @@ public class MessageFeederService {
 
     @Transactional
     public void executeOneRun() {
-        int total = ThreadLocalRandom.current().nextInt(1, feederProperties.getMaxMessagesPerRun() + 1);
+        int total = feederProperties.isFixedLimit()
+                ? feederProperties.getMaxMessagesPerRun()
+                : ThreadLocalRandom.current().nextInt(1, feederProperties.getMaxMessagesPerRun() + 1);
+
         LOGGER.info("Démarrage d'un cycle poller. {} messages à produire.", total);
 
         for (int i = 0; i < total; i++) {
             long cbMsgId = idGeneratorRepository.nextValue(feederProperties.getCbMsgSequenceName());
             long fileId = idGeneratorRepository.nextValue(feederProperties.getClBusinessFileSequenceName());
-            long msgId = cbMsgId;
-
             BranchRegistry.BranchRef branchRef = branchRegistry.randomBranch();
             cbMsgRepository.insert(new CbMsgRecord(cbMsgId, branchRef.branchId()));
-            clBusinessMtmInRepository.insert(fileId, msgId, cbMsgId);
+            clBusinessMtmInRepository.insert(fileId, cbMsgId, cbMsgId);
         }
 
         LOGGER.info("Cycle poller terminé. {} messages insérés dans chaque table.", total);
