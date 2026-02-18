@@ -2,8 +2,10 @@ package com.acetp.feeder.config;
 
 import jakarta.validation.constraints.Min;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+@Component
 @ConfigurationProperties(prefix = "app.feeder")
 @Validated
 public class FeederProperties {
@@ -14,7 +16,9 @@ public class FeederProperties {
     @Min(1)
     private int maxMessagesPerRun = 1000;
 
-    private String cbMsgSequenceName = "ACETP.SEQ_CB_MSG_DB_ID";
+    private boolean fixedLimit = false;
+
+    private String cbMsgSequenceName = "ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test";
     private String clBusinessFileSequenceName = "ACETP.SEQ_CL_BUSINESS_FILE_ID";
 
     public long getPollIntervalMs() {
@@ -31,6 +35,14 @@ public class FeederProperties {
 
     public void setMaxMessagesPerRun(int maxMessagesPerRun) {
         this.maxMessagesPerRun = maxMessagesPerRun;
+    }
+
+    public boolean isFixedLimit() {
+        return fixedLimit;
+    }
+
+    public void setFixedLimit(boolean fixedLimit) {
+        this.fixedLimit = fixedLimit;
     }
 
     public String getCbMsgSequenceName() {

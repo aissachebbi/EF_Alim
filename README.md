@@ -39,7 +39,7 @@ app:
   feeder:
     poll-interval-ms: ${FEEDER_POLL_INTERVAL_MS:10000}
     max-messages-per-run: ${FEEDER_MAX_MESSAGES_PER_RUN:1000}
-    cb-msg-sequence-name: ${FEEDER_CB_MSG_SEQ:ACETP.SEQ_CB_MSG_DB_ID}
+    cb-msg-sequence-name: ${FEEDER_CB_MSG_SEQ:ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test}
     cl-business-file-sequence-name: ${FEEDER_CL_FILE_SEQ:ACETP.SEQ_CL_BUSINESS_FILE_ID}
 ```
 
@@ -50,7 +50,7 @@ Les tables existent déjà en base dans votre contexte. Les scripts restent four
 Les scripts SQL sont fournis séparément pour exécution manuelle:
 
 - `src/main/resources/sql/ddl-feeder.sql`
-  - crée les séquences Oracle utilisées par l'application (`ACETP.SEQ_CB_MSG_DB_ID`, `ACETP.SEQ_CL_BUSINESS_FILE_ID`)
+  - crée les séquences Oracle utilisées par l'application (`ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test`, `ACETP.SEQ_CL_BUSINESS_FILE_ID`)
   - crée `ACETP.CB_MSG`
   - crée `ACETP.CL_BUSINESS_MTM_IN`
   - crée les index alignés au DDL fourni
