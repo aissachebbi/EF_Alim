@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class MessageFeederService {
@@ -25,6 +26,8 @@ public class MessageFeederService {
     private final IdGeneratorRepository idGeneratorRepository;
     private final CbMsgRepository cbMsgRepository;
     private final ClBusinessMtmInRepository clBusinessMtmInRepository;
+
+    private final AtomicLong totalInsertedSinceStartup = new AtomicLong(0);
 
     public MessageFeederService(
             FeederProperties feederProperties,
@@ -42,20 +45,45 @@ public class MessageFeederService {
 
     @Transactional
     public void executeOneRun() {
-        int total = feederProperties.isFixedLimit()
+        int totalPlanned = feederProperties.isFixedLimit()
                 ? feederProperties.getMaxMessagesPerRun()
                 : ThreadLocalRandom.current().nextInt(1, feederProperties.getMaxMessagesPerRun() + 1);
 
+        if (feederProperties.isStopOnMaxTotalMessagesEnabled()
+                && totalInsertedSinceStartup.get() >= feederProperties.getMaxTotalMessages()) {
+            LOGGER.warn(
+                    "Insertion arrêtée: limite max totale atteinte. totalInséré={}, maxTotalMessages={}",
+                    totalInsertedSinceStartup.get(),
+                    feederProperties.getMaxTotalMessages()
+            );
+            return;
+        }
+
         LOGGER.info(
-                "Démarrage cycle poller: messagesÀProduire={}, modeBranche={}, forcedBranchCode={}",
-                total,
+                "Démarrage cycle poller: messagesÀProduire={}, modeBranche={}, forcedBranchCode={}, stopOnMaxEnabled={}, maxTotalMessages={}, totalInséréCumulé={}",
+                totalPlanned,
                 feederProperties.isForceSpecificBranchEnabled() ? "FORCED" : "RANDOM",
-                feederProperties.getForcedBranchCode()
+                feederProperties.getForcedBranchCode(),
+                feederProperties.isStopOnMaxTotalMessagesEnabled(),
+                feederProperties.getMaxTotalMessages(),
+                totalInsertedSinceStartup.get()
         );
 
         Map<String, Integer> insertedLinesByFlow = new LinkedHashMap<>();
+        int insertedThisRun = 0;
 
-        for (int i = 0; i < total; i++) {
+        for (int i = 0; i < totalPlanned; i++) {
+            if (feederProperties.isStopOnMaxTotalMessagesEnabled()
+                    && totalInsertedSinceStartup.get() >= feederProperties.getMaxTotalMessages()) {
+                LOGGER.warn(
+                        "Arrêt en cours de cycle: max totale atteinte. inséréDansCeRun={}, totalInséré={}, maxTotalMessages={}",
+                        insertedThisRun,
+                        totalInsertedSinceStartup.get(),
+                        feederProperties.getMaxTotalMessages()
+                );
+                break;
+            }
+
             long cbMsgId = idGeneratorRepository.nextValue(feederProperties.getCbMsgSequenceName());
             long fileId = idGeneratorRepository.nextValue(feederProperties.getClBusinessFileSequenceName());
             long msgId = cbMsgId;
@@ -66,11 +94,15 @@ public class MessageFeederService {
 
             String key = branchRef.branchCode() + "|" + branchRef.branchName();
             insertedLinesByFlow.merge(key, 1, Integer::sum);
+
+            insertedThisRun++;
+            totalInsertedSinceStartup.incrementAndGet();
         }
 
         LOGGER.info(
-                "Cycle poller terminé: totalLignesInséréesParTable={}, détailParFlowBranche={}",
-                total,
+                "Cycle poller terminé: lignesInséréesCeRunParTable={}, totalInséréCumulé={}, détailParFlowBranche={}",
+                insertedThisRun,
+                totalInsertedSinceStartup.get(),
                 insertedLinesByFlow
         );
     }

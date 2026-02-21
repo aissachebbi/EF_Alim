@@ -20,6 +20,11 @@ public class FeederProperties {
     private boolean forceSpecificBranchEnabled = false;
     private String forcedBranchCode;
 
+    private boolean stopOnMaxTotalMessagesEnabled = false;
+
+    @Min(1)
+    private long maxTotalMessages = 100_000;
+
     private String cbMsgSequenceName = "ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test";
     private String clBusinessFileSequenceName = "ACETP.SEQ_CL_BUSINESS_FILE_ID";
 
@@ -61,6 +66,22 @@ public class FeederProperties {
 
     public void setForcedBranchCode(String forcedBranchCode) {
         this.forcedBranchCode = forcedBranchCode;
+    }
+
+    public boolean isStopOnMaxTotalMessagesEnabled() {
+        return stopOnMaxTotalMessagesEnabled;
+    }
+
+    public void setStopOnMaxTotalMessagesEnabled(boolean stopOnMaxTotalMessagesEnabled) {
+        this.stopOnMaxTotalMessagesEnabled = stopOnMaxTotalMessagesEnabled;
+    }
+
+    public long getMaxTotalMessages() {
+        return maxTotalMessages;
+    }
+
+    public void setMaxTotalMessages(long maxTotalMessages) {
+        this.maxTotalMessages = maxTotalMessages;
     }
 
     public String getCbMsgSequenceName() {
