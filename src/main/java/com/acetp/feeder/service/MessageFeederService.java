@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -44,7 +46,14 @@ public class MessageFeederService {
                 ? feederProperties.getMaxMessagesPerRun()
                 : ThreadLocalRandom.current().nextInt(1, feederProperties.getMaxMessagesPerRun() + 1);
 
-        LOGGER.info("Démarrage d'un cycle poller. {} messages à produire.", total);
+        LOGGER.info(
+                "Démarrage cycle poller: messagesÀProduire={}, modeBranche={}, forcedBranchCode={}",
+                total,
+                feederProperties.isForceSpecificBranchEnabled() ? "FORCED" : "RANDOM",
+                feederProperties.getForcedBranchCode()
+        );
+
+        Map<String, Integer> insertedLinesByFlow = new LinkedHashMap<>();
 
         for (int i = 0; i < total; i++) {
             long cbMsgId = idGeneratorRepository.nextValue(feederProperties.getCbMsgSequenceName());
@@ -54,9 +63,16 @@ public class MessageFeederService {
             BranchRegistry.BranchRef branchRef = resolveBranchForRun();
             cbMsgRepository.insert(new CbMsgRecord(cbMsgId, branchRef.branchId()));
             clBusinessMtmInRepository.insert(fileId, msgId, cbMsgId);
+
+            String key = branchRef.branchCode() + "|" + branchRef.branchName();
+            insertedLinesByFlow.merge(key, 1, Integer::sum);
         }
 
-        LOGGER.info("Cycle poller terminé. {} messages insérés dans chaque table.", total);
+        LOGGER.info(
+                "Cycle poller terminé: totalLignesInséréesParTable={}, détailParFlowBranche={}",
+                total,
+                insertedLinesByFlow
+        );
     }
 
     private BranchRegistry.BranchRef resolveBranchForRun() {
