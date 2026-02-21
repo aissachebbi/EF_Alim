@@ -43,6 +43,8 @@ app:
     fixed-limit: ${FEEDER_FIXED_LIMIT:true}
     force-specific-branch-enabled: ${FEEDER_FORCE_SPECIFIC_BRANCH_ENABLED:false}
     forced-branch-code: ${FEEDER_FORCED_BRANCH_CODE:}
+    stop-on-max-total-messages-enabled: ${FEEDER_STOP_ON_MAX_TOTAL_MESSAGES_ENABLED:false}
+    max-total-messages: ${FEEDER_MAX_TOTAL_MESSAGES:100000}
     cb-msg-sequence-name: ${FEEDER_CB_MSG_SEQ:ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test}
     cl-business-file-sequence-name: ${FEEDER_CL_FILE_SEQ:ACETP.SEQ_CL_BUSINESS_FILE_ID}
 ```
@@ -76,11 +78,17 @@ Exemple d'ordre manuel:
 3. (optionnel) `truncate-feeder.sql` pour vider les tables
 
 
+### Limite max totale d'insertion
+
+- `app.feeder.stop-on-max-total-messages-enabled=true` active une limite cumulée sur tout le runtime.
+- `app.feeder.max-total-messages` définit le plafond de lignes à insérer.
+- Une fois le plafond atteint, l'insertion s'arrête et un log `WARN` est émis.
+
 ### Logs d'insertion
 
 À chaque cycle, les logs affichent:
 - le mode de branche (`RANDOM` ou `FORCED`) et le code forcé éventuel,
-- le nombre total de lignes insérées,
+- le nombre de lignes insérées dans le run + le cumul runtime,
 - le détail des lignes insérées par flow/branche (`branchCode|branchName`).
 
 ## Lancement
