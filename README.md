@@ -7,10 +7,11 @@ Application Spring Boot qui exécute un poller configurable et alimente:
 - `ACETP.CL_BUSINESS_MTM_IN`
 
 À chaque cycle:
-1. Tirer un volume aléatoire `1..N` (`N` configurable).
-2. Insérer ce volume dans `CB_MSG` avec les champs obligatoires.
-3. Insérer le même volume dans `CL_BUSINESS_MTM_IN` avec la référence `CB_MSG_DB_ID`.
-4. Renseigner explicitement les dates en DateTime (`CREATION_DATE`, `UPDATING_DATE` dans `CB_MSG`, et `CREATION_DATE` dans `CL_BUSINESS_MTM_IN`).
+1. Calculer le volume de messages (fixe `N` ou aléatoire `1..N` selon la conf).
+2. Choisir la branche: aléatoire (par défaut) ou branche forcée par code si activée.
+3. Insérer ce volume dans `CB_MSG` avec les champs obligatoires.
+4. Insérer le même volume dans `CL_BUSINESS_MTM_IN` avec la référence `CB_MSG_DB_ID`.
+5. Renseigner explicitement les dates en DateTime (`CREATION_DATE`, `UPDATING_DATE` dans `CB_MSG`, et `CREATION_DATE` dans `CL_BUSINESS_MTM_IN`).
 
 ## Stack technique
 
@@ -39,9 +40,18 @@ app:
   feeder:
     poll-interval-ms: ${FEEDER_POLL_INTERVAL_MS:10000}
     max-messages-per-run: ${FEEDER_MAX_MESSAGES_PER_RUN:1000}
+    fixed-limit: ${FEEDER_FIXED_LIMIT:true}
+    force-specific-branch-enabled: ${FEEDER_FORCE_SPECIFIC_BRANCH_ENABLED:false}
+    forced-branch-code: ${FEEDER_FORCED_BRANCH_CODE:}
     cb-msg-sequence-name: ${FEEDER_CB_MSG_SEQ:ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test}
     cl-business-file-sequence-name: ${FEEDER_CL_FILE_SEQ:ACETP.SEQ_CL_BUSINESS_FILE_ID}
 ```
+
+### Forcer une branche spécifique
+
+- `app.feeder.force-specific-branch-enabled=true` active la branche forcée.
+- `app.feeder.forced-branch-code=<CODE>` définit le code branche (ex: `ITMM`, `FRPP`, `DEFF`, `GRAX`, ...).
+- Si le flag est `false`, la branche reste aléatoire via le registre en mémoire.
 
 ## Scripts SQL manuels (sans composant Java)
 

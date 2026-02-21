@@ -17,6 +17,8 @@ public class FeederProperties {
     private int maxMessagesPerRun = 1000;
 
     private boolean fixedLimit = false;
+    private boolean forceSpecificBranchEnabled = false;
+    private String forcedBranchCode;
 
     private String cbMsgSequenceName = "ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test";
     private String clBusinessFileSequenceName = "ACETP.SEQ_CL_BUSINESS_FILE_ID";
@@ -43,6 +45,22 @@ public class FeederProperties {
 
     public void setFixedLimit(boolean fixedLimit) {
         this.fixedLimit = fixedLimit;
+    }
+
+    public boolean isForceSpecificBranchEnabled() {
+        return forceSpecificBranchEnabled;
+    }
+
+    public void setForceSpecificBranchEnabled(boolean forceSpecificBranchEnabled) {
+        this.forceSpecificBranchEnabled = forceSpecificBranchEnabled;
+    }
+
+    public String getForcedBranchCode() {
+        return forcedBranchCode;
+    }
+
+    public void setForcedBranchCode(String forcedBranchCode) {
+        this.forcedBranchCode = forcedBranchCode;
     }
 
     public String getCbMsgSequenceName() {
