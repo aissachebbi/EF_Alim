@@ -45,6 +45,24 @@ app:
     forced-branch-code: ${FEEDER_FORCED_BRANCH_CODE:}
     stop-on-max-total-messages-enabled: ${FEEDER_STOP_ON_MAX_TOTAL_MESSAGES_ENABLED:false}
     max-total-messages: ${FEEDER_MAX_TOTAL_MESSAGES:100000}
+    branch-distribution-enabled: ${FEEDER_BRANCH_DISTRIBUTION_ENABLED:false}
+    branch-distribution-percentages:
+      DEFF: ${FEEDER_BRANCH_PCT_DEFF:0}
+      ITMM: ${FEEDER_BRANCH_PCT_ITMM:100}
+      PLPX: ${FEEDER_BRANCH_PCT_PLPX:0}
+      HUHX: ${FEEDER_BRANCH_PCT_HUHX:0}
+      SGSG: ${FEEDER_BRANCH_PCT_SGSG:0}
+      HKHH: ${FEEDER_BRANCH_PCT_HKHH:0}
+      CHZZ: ${FEEDER_BRANCH_PCT_CHZZ:0}
+      AU2S: ${FEEDER_BRANCH_PCT_AU2S:0}
+      ESMX: ${FEEDER_BRANCH_PCT_ESMX:0}
+      GRAX: ${FEEDER_BRANCH_PCT_GRAX:0}
+      GGS1: ${FEEDER_BRANCH_PCT_GGS1:0}
+      LULL: ${FEEDER_BRANCH_PCT_LULL:0}
+      BEBZ: ${FEEDER_BRANCH_PCT_BEBZ:0}
+      JESH: ${FEEDER_BRANCH_PCT_JESH:0}
+      GB2L: ${FEEDER_BRANCH_PCT_GB2L:0}
+      FRPP: ${FEEDER_BRANCH_PCT_FRPP:0}
     cb-msg-sequence-name: ${FEEDER_CB_MSG_SEQ:ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test}
     cl-business-file-sequence-name: ${FEEDER_CL_FILE_SEQ:ACETP.SEQ_CL_BUSINESS_FILE_ID}
 ```
@@ -54,6 +72,18 @@ app:
 - `app.feeder.force-specific-branch-enabled=true` active la branche forcée.
 - `app.feeder.forced-branch-code=<CODE>` définit le code branche (ex: `ITMM`, `FRPP`, `DEFF`, `GRAX`, ...).
 - Si le flag est `false`, la branche reste aléatoire via le registre en mémoire.
+
+
+### Distribution par branche (graphe en mémoire)
+
+- `app.feeder.branch-distribution-enabled=true` active la répartition par pourcentage.
+- `app.feeder.branch-distribution-percentages` contient le graphe `{branchCode -> pourcentage}` chargé en mémoire au démarrage.
+- Chaque branche doit avoir une valeur entre `0` et `100`.
+- `0` => branche ignorée.
+- Le calcul est fait à chaque poll **sur la base de** `max-messages-per-run` (mode distribution), puis les lignes sont réparties par branche selon les pourcentages.
+
+Exemple:
+- `ITMM=60`, `DEFF=40`, autres `0` => sur `max-messages-per-run=1000`, cible ≈ `600` ITMM et `400` DEFF.
 
 ## Scripts SQL manuels (sans composant Java)
 
@@ -88,6 +118,7 @@ Exemple d'ordre manuel:
 
 À chaque cycle, les logs affichent:
 - le mode de branche (`RANDOM` ou `FORCED`) et le code forcé éventuel,
+- l'état `branchDistributionEnabled` et le graphe chargé en mémoire (si activé),
 - le nombre de lignes insérées dans le run + le cumul runtime,
 - le détail des lignes insérées par flow/branche (`branchCode|branchName`).
 

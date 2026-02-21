@@ -5,6 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 @Component
 @ConfigurationProperties(prefix = "app.feeder")
 @Validated
@@ -24,6 +27,9 @@ public class FeederProperties {
 
     @Min(1)
     private long maxTotalMessages = 100_000;
+
+    private boolean branchDistributionEnabled = false;
+    private Map<String, Integer> branchDistributionPercentages = new LinkedHashMap<>();
 
     private String cbMsgSequenceName = "ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test";
     private String clBusinessFileSequenceName = "ACETP.SEQ_CL_BUSINESS_FILE_ID";
@@ -82,6 +88,22 @@ public class FeederProperties {
 
     public void setMaxTotalMessages(long maxTotalMessages) {
         this.maxTotalMessages = maxTotalMessages;
+    }
+
+    public boolean isBranchDistributionEnabled() {
+        return branchDistributionEnabled;
+    }
+
+    public void setBranchDistributionEnabled(boolean branchDistributionEnabled) {
+        this.branchDistributionEnabled = branchDistributionEnabled;
+    }
+
+    public Map<String, Integer> getBranchDistributionPercentages() {
+        return branchDistributionPercentages;
+    }
+
+    public void setBranchDistributionPercentages(Map<String, Integer> branchDistributionPercentages) {
+        this.branchDistributionPercentages = branchDistributionPercentages;
     }
 
     public String getCbMsgSequenceName() {
