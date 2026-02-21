@@ -49,11 +49,23 @@ public class MessageFeederService {
         for (int i = 0; i < total; i++) {
             long cbMsgId = idGeneratorRepository.nextValue(feederProperties.getCbMsgSequenceName());
             long fileId = idGeneratorRepository.nextValue(feederProperties.getClBusinessFileSequenceName());
-            BranchRegistry.BranchRef branchRef = branchRegistry.randomBranch();
+            long msgId = cbMsgId;
+
+            BranchRegistry.BranchRef branchRef = resolveBranchForRun();
             cbMsgRepository.insert(new CbMsgRecord(cbMsgId, branchRef.branchId()));
-            clBusinessMtmInRepository.insert(fileId, cbMsgId, cbMsgId);
+            clBusinessMtmInRepository.insert(fileId, msgId, cbMsgId);
         }
 
         LOGGER.info("Cycle poller terminé. {} messages insérés dans chaque table.", total);
+    }
+
+    private BranchRegistry.BranchRef resolveBranchForRun() {
+        if (feederProperties.isForceSpecificBranchEnabled()) {
+            BranchRegistry.BranchRef forced = branchRegistry.findByCode(feederProperties.getForcedBranchCode());
+            LOGGER.debug("Branche forcée activée: code={}, id={}, name={}",
+                    forced.branchCode(), forced.branchId(), forced.branchName());
+            return forced;
+        }
+        return branchRegistry.randomBranch();
     }
 }
