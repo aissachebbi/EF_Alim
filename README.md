@@ -75,6 +75,14 @@ Exemple d'ordre manuel:
 2. `ddl-feeder.sql`
 3. (optionnel) `truncate-feeder.sql` pour vider les tables
 
+
+### Logs d'insertion
+
+À chaque cycle, les logs affichent:
+- le mode de branche (`RANDOM` ou `FORCED`) et le code forcé éventuel,
+- le nombre total de lignes insérées,
+- le détail des lignes insérées par flow/branche (`branchCode|branchName`).
+
 ## Lancement
 
 ```bash
