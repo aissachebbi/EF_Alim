@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8084
 
 spring:
   application:
@@ -10,32 +10,42 @@ spring:
     password: ${DB_PASSWORD:Aissa1000*}
     driver-class-name: ${DB_DRIVER:oracle.jdbc.OracleDriver}
 
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
 app:
   feeder:
-    poll-interval-ms: ${FEEDER_POLL_INTERVAL_MS:10000}
+    poll-interval-ms: ${FEEDER_POLL_INTERVAL_MS:1000}
     max-messages-per-run: ${FEEDER_MAX_MESSAGES_PER_RUN:1000}
-    fixed-limit: ${FEEDER_FIXED_LIMIT:true}
-    force-specific-branch-enabled: ${FEEDER_FORCE_SPECIFIC_BRANCH_ENABLED:false}
-    forced-branch-code: ${FEEDER_FORCED_BRANCH_CODE:}
-    stop-on-max-total-messages-enabled: ${FEEDER_STOP_ON_MAX_TOTAL_MESSAGES_ENABLED:false}
-    max-total-messages: ${FEEDER_MAX_TOTAL_MESSAGES:100000}
-    branch-distribution-enabled: ${FEEDER_BRANCH_DISTRIBUTION_ENABLED:false}
+    fixed-limit: ${FEEDER_FIXED_LIMIT:false}
+    force-specific-branch-enabled: ${FEEDER_FORCE_SPECIFIC_BRANCH_ENABLED:true}
+    forced-branch-code: ${FEEDER_FORCED_BRANCH_CODE:DEFF}
+    stop-on-max-total-messages-enabled: ${FEEDER_STOP_ON_MAX_TOTAL_MESSAGES_ENABLED:true}
+    max-total-messages: ${FEEDER_MAX_TOTAL_MESSAGES:1000000}
+    branch-distribution-enabled: ${FEEDER_BRANCH_DISTRIBUTION_ENABLED:true}
     branch-distribution-percentages:
-      DEFF: ${FEEDER_BRANCH_PCT_DEFF:0}
-      ITMM: ${FEEDER_BRANCH_PCT_ITMM:100}
+      DEFF: ${FEEDER_BRANCH_PCT_DEFF:20}
+      ITMM: ${FEEDER_BRANCH_PCT_ITMM:10}
       PLPX: ${FEEDER_BRANCH_PCT_PLPX:0}
       HUHX: ${FEEDER_BRANCH_PCT_HUHX:0}
-      SGSG: ${FEEDER_BRANCH_PCT_SGSG:0}
+      SGSG: ${FEEDER_BRANCH_PCT_SGSG:5}
       HKHH: ${FEEDER_BRANCH_PCT_HKHH:0}
-      CHZZ: ${FEEDER_BRANCH_PCT_CHZZ:0}
-      AU2S: ${FEEDER_BRANCH_PCT_AU2S:0}
-      ESMX: ${FEEDER_BRANCH_PCT_ESMX:0}
+      CHZZ: ${FEEDER_BRANCH_PCT_CHZZ:5}
+      AU2S: ${FEEDER_BRANCH_PCT_AU2S:10}
+      ESMX: ${FEEDER_BRANCH_PCT_ESMX:10}
       GRAX: ${FEEDER_BRANCH_PCT_GRAX:0}
-      GGS1: ${FEEDER_BRANCH_PCT_GGS1:0}
-      LULL: ${FEEDER_BRANCH_PCT_LULL:0}
+      GGS1: ${FEEDER_BRANCH_PCT_GGS1:10}
+      LULL: ${FEEDER_BRANCH_PCT_LULL:7}
       BEBZ: ${FEEDER_BRANCH_PCT_BEBZ:0}
       JESH: ${FEEDER_BRANCH_PCT_JESH:0}
-      GB2L: ${FEEDER_BRANCH_PCT_GB2L:0}
-      FRPP: ${FEEDER_BRANCH_PCT_FRPP:0}
+      GB2L: ${FEEDER_BRANCH_PCT_GB2L:3}
+      FRPP: ${FEEDER_BRANCH_PCT_FRPP:20}
     cb-msg-sequence-name: ${FEEDER_CB_MSG_SEQ:ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test}
     cl-business-file-sequence-name: ${FEEDER_CL_FILE_SEQ:ACETP.SEQ_CL_BUSINESS_FILE_ID}
+
