@@ -2,13 +2,13 @@ package com.acetp.feeder.service;
 
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-@Profile("mqfeeder")
+@ConditionalOnBean(MqQueuePurgeService.class)
 @Endpoint(id = "mqQueuePurge")
 public class MqQueuePurgeEndpoint {
 

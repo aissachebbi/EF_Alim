@@ -11,6 +11,7 @@ app:
     mq:
       enabled: true
       queue-name: ${MQ_FEEDER_QUEUE_NAME:H73197_ATP.EXP.02.E}
+      purge-on-startup-enabled: ${MQ_PURGE_ON_STARTUP_ENABLED:false}
 
 # ==========================================
 # Configuration IBM MQ pour Spring Boot 3

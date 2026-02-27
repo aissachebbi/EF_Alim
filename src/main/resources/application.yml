@@ -24,13 +24,13 @@ management:
 app:
   feeder:
     poll-interval-ms: ${FEEDER_POLL_INTERVAL_MS:1000}
-    max-messages-per-run: ${FEEDER_MAX_MESSAGES_PER_RUN:1000}
-    fixed-limit: ${FEEDER_FIXED_LIMIT:false}
+    max-messages-per-run: ${FEEDER_MAX_MESSAGES_PER_RUN:1}
+    fixed-limit: ${FEEDER_FIXED_LIMIT:true}
     force-specific-branch-enabled: ${FEEDER_FORCE_SPECIFIC_BRANCH_ENABLED:true}
     forced-branch-code: ${FEEDER_FORCED_BRANCH_CODE:DEFF}
     stop-on-max-total-messages-enabled: ${FEEDER_STOP_ON_MAX_TOTAL_MESSAGES_ENABLED:true}
-    max-total-messages: ${FEEDER_MAX_TOTAL_MESSAGES:1000000}
-    branch-distribution-enabled: ${FEEDER_BRANCH_DISTRIBUTION_ENABLED:true}
+    max-total-messages: ${FEEDER_MAX_TOTAL_MESSAGES:10}
+    branch-distribution-enabled: ${FEEDER_BRANCH_DISTRIBUTION_ENABLED:false}
     branch-distribution-percentages:
       DEFF: ${FEEDER_BRANCH_PCT_DEFF:20}
       ITMM: ${FEEDER_BRANCH_PCT_ITMM:10}
@@ -53,8 +53,9 @@ app:
     mq:
       enabled: ${MQ_FEEDER_ENABLED:false}
       queue-name: ${MQ_FEEDER_QUEUE_NAME:H73197_ATP.EXP.02.E}
+      purge-on-startup-enabled: ${MQ_PURGE_ON_STARTUP_ENABLED:false}
       branch-templates:
-        DEFF: ${MQ_TEMPLATE_DEFF:}
+        DEFF: ${MQ_TEMPLATE_DEFF:testDEFF}
         ITMM: ${MQ_TEMPLATE_ITMM:}
         PLPX: ${MQ_TEMPLATE_PLPX:}
         HUHX: ${MQ_TEMPLATE_HUHX:}

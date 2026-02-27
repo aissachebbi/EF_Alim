@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
-@Profile("mqfeeder")
 @Endpoint(id = "feedingControl")
 public class FeedingControlEndpoint {
 
@@ -24,6 +23,15 @@ public class FeedingControlEndpoint {
     public Map<String, Object> status() {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("feedingPaused", feedingControlService.isPaused());
+        return response;
+    }
+
+    @WriteOperation
+    public Map<String, Object> stopFeeding() {
+        feedingControlService.pauseFeeding();
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("feedingPaused", true);
+        response.put("message", "Feeding mis en pause.");
         return response;
     }
 

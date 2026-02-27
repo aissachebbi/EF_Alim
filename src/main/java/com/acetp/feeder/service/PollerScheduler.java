@@ -14,6 +14,7 @@ public class PollerScheduler {
     private final MessageFeederService messageFeederService;
     private final FeederProperties feederProperties;
     private final FeedingControlService feedingControlService;
+    private boolean pausedMessageLogged = false;
 
     public PollerScheduler(
             MessageFeederService messageFeederService,
@@ -28,8 +29,14 @@ public class PollerScheduler {
     @Scheduled(fixedDelayString = "#{@feederProperties.pollIntervalMs}")
     public void poll() {
         if (feedingControlService.isPaused()) {
-            LOGGER.info("Poll ignoré: feeding en pause (reprendre via endpoint feedingControl.resumeFeeding)." );
+            if (!pausedMessageLogged) {
+                LOGGER.info("Poll ignoré: feeding en pause (reprendre via endpoint feedingControl.resumeFeeding).");
+                pausedMessageLogged = true;
+            }
             return;
+        }
+        if (pausedMessageLogged) {
+            pausedMessageLogged = false;
         }
         messageFeederService.executeOneRun();
     }
