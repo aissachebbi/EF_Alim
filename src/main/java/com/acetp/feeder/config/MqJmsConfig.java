@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jms.core.JmsTemplate;
 
 @Configuration
-@Profile("mqfeeder")
+@Profile("mqfeeder | mqpurge")
 public class MqJmsConfig {
 
     @Bean

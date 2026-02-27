@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Repository
-@Profile("!mqfeeder")
+@Profile("!mqfeeder & !mqpurge")
 public class ClBusinessMtmInRepository {
 
     private final JdbcTemplate jdbcTemplate;

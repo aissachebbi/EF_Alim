@@ -64,27 +64,29 @@ flowchart LR
   end
 
   subgraph MQ_Process ["✉️ Flux MQ Feeder"]
-    D["Lancement MQ<br/><code>-Dspring-boot.run.profiles=mqfeeder</code>"] --> E("Profil <b>mqfeeder</b>")
+    D["Lancement MQ Feeder<br/><code>-Dspring-boot.run.profiles=mqfeeder</code>"] --> E("Profil <b>mqfeeder</b>")
     E --> F["mq.enabled=true (forcé)"]
     F --> G(["Publication IBM MQ"])
+  end
 
-    E --> H{"Purge au démarrage ?"}
-    H -- "Oui (true)" --> I["MqStartupPurgeRunner"]
-    I --> J["MqQueuePurgeService.purgeQueue()"]
-    H -- "Non (false)" --> G
+  subgraph MQ_Purge ["🧹 Flux MQ Purge"]
+    P1["Lancement MQ Purge<br/><code>-Dspring-boot.run.profiles=mqpurge</code>"] --> P2("MqStartupPurgeRunner")
+    P2 --> J["MqQueuePurgeService.purgeQueue()"]
+    J --> P3["Arrêt propre de l'application"]
   end
 
   subgraph Admin ["⚙️ Administration"]
     K["JMX: mqQueuePurge.purge()"] --> J
     J --> L["Logs: Début/Fin + Nb messages"]
+    J --> P4["Scheduler mis en pause"]
+    P5["JMX: feedingControl.resumeFeeding()"] --> P6["Scheduler réactivé"]
   end
 
 %% Application des classes
   class A,B,C standard;
-  class D,E,F,G,H mq;
-  class I,J,L action;
-  class K jmx;
-```
+  class D,E,F,G,P1,P2 mq;
+  class J,L,P3,P4,P6 action;
+  class K,P5 jmx;
 ```
 
 ### 3) Stratégie de sélection de branche
@@ -222,8 +224,11 @@ Exemple d'ordre manuel:
 ```bash
 mvn spring-boot:run
 
-# Mode MQ
+# Mode MQ feeder
 mvn spring-boot:run -Dspring-boot.run.profiles=mqfeeder
+
+# Mode MQ purge (purge puis arrêt)
+mvn spring-boot:run -Dspring-boot.run.profiles=mqpurge
 ```
 
 ## Profil `mqfeeder` (IBM MQ, sans TLS)
@@ -231,20 +236,27 @@ mvn spring-boot:run -Dspring-boot.run.profiles=mqfeeder
 - Le profil `mqfeeder` force automatiquement `app.feeder.mq.enabled=true`.
 - Les templates sont configurés par branche dans `app.feeder.mq.branch-templates`.
 - La queue cible est définie via `app.feeder.mq.queue-name` (défaut: `H73197_ATP.EXP.02.E`).
-- `app.feeder.mq.purge-on-startup-enabled=true` permet de purger automatiquement la queue au démarrage (même logique que `mqQueuePurge.purge()`).
 - La connexion IBM MQ est configurée dans `application-mqfeeder.yml` via `ibm.mq.*` avec défauts alignés: `queue-manager=QM1`, `channel=CLIATP01.FRATP01T.T1`, `ccsid=819`.
 
-- Cas spécial supporté: en `mqfeeder`, si `app.feeder.mq.purge-on-startup-enabled=true` et `app.feeder.max-messages-per-run=0`, l'application exécute le purge au démarrage puis s'arrête proprement (mode purge-only).
+
+## Profil `mqpurge` (purge au démarrage puis arrêt)
+
+- Le profil `mqpurge` exécute un purge de la queue au démarrage puis ferme l'application.
+- Ce profil est dédié aux opérations d'exploitation (pas d'alimentation continue).
 
 ## Purge JMX de la queue MQ
 
 Un endpoint Actuator JMX est exposé en profil `mqfeeder`:
 
-- `mqQueuePurge.purge()`
+- `mqQueuePurge.purge()` : purge la queue **et met le scheduler en pause**.
+- `feedingControl.resumeFeeding()` : reprend l'alimentation après un purge.
+- `feedingControl.status()` : indique si l'alimentation est en pause.
 
 Cet endpoint consomme les messages de la queue configurée (`app.feeder.mq.queue-name`) jusqu'à épuisement, puis retourne le nombre de messages purgés.
 
-Des logs explicites sont émis pour chaque purge (début/fin, queue ciblée, nombre de messages purgés), y compris lors du purge automatique au démarrage.
+Des logs explicites sont émis pour chaque purge (début/fin, queue ciblée, nombre de messages purgés).
+
+En profil `mqfeeder`, `app.feeder.max-messages-per-run` reste soumis à la validation standard (min=1).
 
 ## Séquences Oracle et application.yml
 

@@ -13,16 +13,22 @@ public class PollerScheduler {
 
     private final MessageFeederService messageFeederService;
     private final FeederProperties feederProperties;
+    private final FeedingControlService feedingControlService;
 
-    public PollerScheduler(MessageFeederService messageFeederService, FeederProperties feederProperties) {
+    public PollerScheduler(
+            MessageFeederService messageFeederService,
+            FeederProperties feederProperties,
+            FeedingControlService feedingControlService
+    ) {
         this.messageFeederService = messageFeederService;
         this.feederProperties = feederProperties;
+        this.feedingControlService = feedingControlService;
     }
 
     @Scheduled(fixedDelayString = "#{@feederProperties.pollIntervalMs}")
     public void poll() {
-        if (feederProperties.getMaxMessagesPerRun() <= 0) {
-            LOGGER.info("Poll ignoré: app.feeder.max-messages-per-run <= 0 (mode purge-only)." );
+        if (feedingControlService.isPaused()) {
+            LOGGER.info("Poll ignoré: feeding en pause (reprendre via endpoint feedingControl.resumeFeeding)." );
             return;
         }
         messageFeederService.executeOneRun();

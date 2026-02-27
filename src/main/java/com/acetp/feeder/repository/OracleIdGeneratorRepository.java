@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("!mqfeeder")
+@Profile("!mqfeeder & !mqpurge")
 public class OracleIdGeneratorRepository implements IdGeneratorRepository {
 
     private final JdbcTemplate jdbcTemplate;

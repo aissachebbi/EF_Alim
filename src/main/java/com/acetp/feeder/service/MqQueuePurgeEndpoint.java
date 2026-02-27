@@ -13,13 +13,22 @@ import java.util.Map;
 public class MqQueuePurgeEndpoint {
 
     private final MqQueuePurgeService mqQueuePurgeService;
+    private final FeedingControlService feedingControlService;
 
-    public MqQueuePurgeEndpoint(MqQueuePurgeService mqQueuePurgeService) {
+    public MqQueuePurgeEndpoint(
+            MqQueuePurgeService mqQueuePurgeService,
+            FeedingControlService feedingControlService
+    ) {
         this.mqQueuePurgeService = mqQueuePurgeService;
+        this.feedingControlService = feedingControlService;
     }
 
     @WriteOperation
     public Map<String, Object> purge() {
-        return mqQueuePurgeService.purgeQueue();
+        Map<String, Object> result = mqQueuePurgeService.purgeQueue();
+        feedingControlService.pauseFeeding();
+        result.put("feedingPaused", true);
+        result.put("resumeOperation", "feedingControl.resumeFeeding");
+        return result;
     }
 }

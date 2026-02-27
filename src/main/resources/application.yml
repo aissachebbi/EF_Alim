@@ -53,7 +53,6 @@ app:
     mq:
       enabled: ${MQ_FEEDER_ENABLED:false}
       queue-name: ${MQ_FEEDER_QUEUE_NAME:H73197_ATP.EXP.02.E}
-      purge-on-startup-enabled: ${MQ_PURGE_ON_STARTUP_ENABLED:false}
       branch-templates:
         DEFF: ${MQ_TEMPLATE_DEFF:}
         ITMM: ${MQ_TEMPLATE_ITMM:}

@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: mqfeeder
+      on-profile: mqpurge
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration

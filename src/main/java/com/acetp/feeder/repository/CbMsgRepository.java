@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Repository
-@Profile("!mqfeeder")
+@Profile("!mqfeeder & !mqpurge")
 public class CbMsgRepository {
 
     private final JdbcTemplate jdbcTemplate;

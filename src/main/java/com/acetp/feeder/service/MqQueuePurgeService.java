@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
-@Profile("mqfeeder")
+@Profile("mqfeeder | mqpurge")
 public class MqQueuePurgeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqQueuePurgeService.class);
