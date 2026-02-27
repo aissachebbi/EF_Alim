@@ -234,6 +234,8 @@ mvn spring-boot:run -Dspring-boot.run.profiles=mqfeeder
 - `app.feeder.mq.purge-on-startup-enabled=true` permet de purger automatiquement la queue au démarrage (même logique que `mqQueuePurge.purge()`).
 - La connexion IBM MQ est configurée dans `application-mqfeeder.yml` via `ibm.mq.*` avec défauts alignés: `queue-manager=QM1`, `channel=CLIATP01.FRATP01T.T1`, `ccsid=819`.
 
+- Cas spécial supporté: en `mqfeeder`, si `app.feeder.mq.purge-on-startup-enabled=true` et `app.feeder.max-messages-per-run=0`, l'application exécute le purge au démarrage puis s'arrête proprement (mode purge-only).
+
 ## Purge JMX de la queue MQ
 
 Un endpoint Actuator JMX est exposé en profil `mqfeeder`:

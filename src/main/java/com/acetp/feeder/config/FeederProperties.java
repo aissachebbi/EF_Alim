@@ -16,7 +16,6 @@ public class FeederProperties {
     @Min(1000)
     private long pollIntervalMs = 10_000;
 
-    @Min(1)
     private int maxMessagesPerRun = 1000;
 
     private boolean fixedLimit = false;

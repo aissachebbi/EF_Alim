@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +19,16 @@ public class MqStartupPurgeRunner implements ApplicationRunner {
 
     private final FeederProperties feederProperties;
     private final MqQueuePurgeService mqQueuePurgeService;
+    private final ConfigurableApplicationContext applicationContext;
 
-    public MqStartupPurgeRunner(FeederProperties feederProperties, MqQueuePurgeService mqQueuePurgeService) {
+    public MqStartupPurgeRunner(
+            FeederProperties feederProperties,
+            MqQueuePurgeService mqQueuePurgeService,
+            ConfigurableApplicationContext applicationContext
+    ) {
         this.feederProperties = feederProperties;
         this.mqQueuePurgeService = mqQueuePurgeService;
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -34,5 +41,10 @@ public class MqStartupPurgeRunner implements ApplicationRunner {
         LOGGER.info("Purge MQ au démarrage activée. Déclenchement de mqQueuePurge.purge().");
         Map<String, Object> result = mqQueuePurgeService.purgeQueue();
         LOGGER.info("Purge MQ au démarrage terminée: {}", result);
+
+        if (feederProperties.getMaxMessagesPerRun() == 0) {
+            LOGGER.info("Mode purge-only détecté (max-messages-per-run=0). Arrêt propre de l'application après purge.");
+            applicationContext.close();
+        }
     }
 }
