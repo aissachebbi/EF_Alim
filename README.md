@@ -14,6 +14,83 @@ Application Spring Boot qui exécute un poller configurable et alimente:
 4. Insérer le même volume dans `CL_BUSINESS_MTM_IN` avec la référence `CB_MSG_DB_ID`.
 5. Renseigner explicitement les dates en DateTime (`CREATION_DATE`, `UPDATING_DATE` dans `CB_MSG`, et `CREATION_DATE` dans `CL_BUSINESS_MTM_IN`).
 
+
+## Diagrammes d'architecture et de workflow
+
+### 1) Workflow global du poller
+
+```mermaid
+flowchart TD
+    A[PollerScheduler déclenché par intervalle] --> B[MessageFeederService.executeOneRun]
+    B --> C{Stop max total atteint ?}
+    C -- Oui --> Z[Log WARN + fin de cycle]
+    C -- Non --> D{Distribution par branche activée ?}
+
+    D -- Oui --> E[BranchRegistry.computeBranchAllocations]
+    E --> F[Plan pondéré par branche %]
+    F --> G[Boucle par branche et volume alloué]
+
+    D -- Non --> H{Branche forcée activée ?}
+    H -- Oui --> I[Branche = forced-branch-code]
+    H -- Non --> J[Branche aléatoire]
+    I --> K[Boucle messages]
+    J --> K
+
+    G --> L{Mode MQ actif ?}
+    K --> L
+    L -- Oui --> M[Lire template de la branche]
+    M --> N[Publier message vers IBM MQ]
+    L -- Non --> O[Générer IDs Oracle]
+    O --> P[Insert CB_MSG + CL_BUSINESS_MTM_IN]
+
+    N --> Q[Compteurs + logs par branche]
+    P --> Q
+    Q --> R[Résumé de cycle: total + détail branche]
+```
+
+### 2) Modes de lancement et interactions MQ/JMX
+
+```mermaid
+flowchart LR
+    A[Lancement standard
+mvn spring-boot:run] --> B[Profil par défaut DB]
+    B --> C[Insert Oracle JDBC]
+
+    D[Lancement MQ
+mvn spring-boot:run -Dspring-boot.run.profiles=mqfeeder] --> E[Profil mqfeeder]
+    E --> F[mq.enabled=true forcé]
+    F --> G[Publication IBM MQ]
+
+    E --> H{purge-on-startup-enabled ?}
+    H -- true --> I[MqStartupPurgeRunner]
+    I --> J[MqQueuePurgeService.purgeQueue]
+    H -- false --> G
+
+    K[JMX: mqQueuePurge.purge()] --> J
+    J --> L[Logs purge: début/fin + nombre messages]
+```
+
+### 3) Stratégie de sélection de branche
+
+```mermaid
+flowchart TD
+    A[Début run] --> B{branch-distribution-enabled ?}
+
+    B -- Oui --> C[Lire branch-distribution-percentages]
+    C --> D[Calcul allocations pondérées]
+    D --> E[Ex: DEFF 40%, ITMM 60%]
+    E --> F[Répartition volume run]
+
+    B -- Non --> G{force-specific-branch-enabled ?}
+    G -- Oui --> H[Utiliser forced-branch-code]
+    G -- Non --> I[Tirage branche aléatoire]
+
+    F --> J[Produire messages]
+    H --> J
+    I --> J
+    J --> K[Compter par branche + log résumé]
+```
+
 ## Stack technique
 
 - Java 17
