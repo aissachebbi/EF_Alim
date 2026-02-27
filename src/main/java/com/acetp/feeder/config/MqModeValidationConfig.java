@@ -3,10 +3,12 @@ package com.acetp.feeder.config;
 import com.acetp.feeder.service.MqMessagePublisher;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("mqfeeder | mqpurge")
 public class MqModeValidationConfig {
 
     private final FeederProperties feederProperties;

@@ -18,6 +18,8 @@ app:
 # ==========================================
 ibm:
   mq:
+    pool:
+      enabled: true
     queue-manager: ${IBM_MQ_QUEUE_MANAGER:QM1}
     conn-name: ${IBM_MQ_CONN_NAME:localhost(1414)}
     channel: ${IBM_MQ_CHANNEL:CLIATP01.FRATP01T.T1}
@@ -25,3 +27,7 @@ ibm:
     password: ${IBM_MQ_PASSWORD:QM1}
     transport-type: ${IBM_MQ_TRANSPORT_TYPE:client}
     ccsid: ${IBM_MQ_CCSID:819}
+management:
+  health:
+    jms:
+      enabled: true
