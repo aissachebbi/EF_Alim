@@ -52,22 +52,39 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A[Lancement standard
-mvn spring-boot:run] --> B[Profil par défaut DB]
-    B --> C[Insert Oracle JDBC]
+%% Définition des styles
+  classDef standard fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b;
+  classDef mq fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100;
+  classDef action fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+  classDef jmx fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#880e4f;
 
-    D[Lancement MQ
-mvn spring-boot:run -Dspring-boot.run.profiles=mqfeeder] --> E[Profil mqfeeder]
-    E --> F[mq.enabled=true forcé]
-    F --> G[Publication IBM MQ]
+  subgraph Standard ["🚀 Flux Standard"]
+    A["Lancement standard<br/><code>mvn spring-boot:run</code>"] --> B("Profil par défaut DB")
+    B --> C[("Insert Oracle JDBC")]
+  end
 
-    E --> H{purge-on-startup-enabled ?}
-    H -- true --> I[MqStartupPurgeRunner]
-    I --> J[MqQueuePurgeService.purgeQueue]
-    H -- false --> G
+  subgraph MQ_Process ["✉️ Flux MQ Feeder"]
+    D["Lancement MQ<br/><code>-Dspring-boot.run.profiles=mqfeeder</code>"] --> E("Profil <b>mqfeeder</b>")
+    E --> F["mq.enabled=true (forcé)"]
+    F --> G(["Publication IBM MQ"])
 
-    K[JMX: mqQueuePurge.purge()] --> J
-    J --> L[Logs purge: début/fin + nombre messages]
+    E --> H{"Purge au démarrage ?"}
+    H -- "Oui (true)" --> I["MqStartupPurgeRunner"]
+    I --> J["MqQueuePurgeService.purgeQueue()"]
+    H -- "Non (false)" --> G
+  end
+
+  subgraph Admin ["⚙️ Administration"]
+    K["JMX: mqQueuePurge.purge()"] --> J
+    J --> L["Logs: Début/Fin + Nb messages"]
+  end
+
+%% Application des classes
+  class A,B,C standard;
+  class D,E,F,G,H mq;
+  class I,J,L action;
+  class K jmx;
+```
 ```
 
 ### 3) Stratégie de sélection de branche
