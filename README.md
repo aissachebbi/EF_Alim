@@ -259,6 +259,25 @@ Des logs explicites sont émis pour chaque purge (début/fin, queue ciblée, nom
 
 En profil `mqfeeder`, `app.feeder.max-messages-per-run` reste soumis à la validation standard (min=1).
 
+
+### Scripts utilitaires JMX
+
+Deux scripts sont fournis dans `scripts/` pour piloter les endpoints JMX: 
+
+- `scripts/jmx-purge.sh` : invoque `mqQueuePurge.purge()`
+- `scripts/jmx-resumefeeder.sh` : invoque `feedingControl.resumeFeeding()`
+
+Variables supportées (optionnelles):
+- `JMX_URL` (défaut: `service:jmx:rmi:///jndi/rmi://127.0.0.1:9010/jmxrmi`)
+- `PURGE_OBJECT_NAME`, `PURGE_OPERATION` pour le script purge
+- `FEEDING_OBJECT_NAME`, `FEEDING_RESUME_OPERATION` pour le script resume
+
+Exemples:
+```bash
+./scripts/jmx-purge.sh
+./scripts/jmx-resumefeeder.sh
+```
+
 ## Séquences Oracle et application.yml
 
 Les noms de séquences sont configurés dans `application.yml`:
