@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
-@Profile("mqfeeder")
+@Profile("mqfeeder | mqpurge")
 public class MqMessagePublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqMessagePublisher.class);

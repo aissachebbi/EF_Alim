@@ -234,6 +234,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=mqpurge
 ## Profil `mqfeeder` (IBM MQ, sans TLS)
 
 - Le profil `mqfeeder` force automatiquement `app.feeder.mq.enabled=true`.
+- ⚠️ Si `app.feeder.mq.enabled=true` hors profils MQ, l'application échoue au démarrage avec un message explicite (il faut activer `mqfeeder` ou `mqpurge`).
 - Les templates sont configurés par branche dans `app.feeder.mq.branch-templates`.
 - La queue cible est définie via `app.feeder.mq.queue-name` (défaut: `H73197_ATP.EXP.02.E`).
 - La connexion IBM MQ est configurée dans `application-mqfeeder.yml` via `ibm.mq.*` avec défauts alignés: `queue-manager=QM1`, `channel=CLIATP01.FRATP01T.T1`, `ccsid=819`.
