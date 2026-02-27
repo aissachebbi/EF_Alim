@@ -33,6 +33,7 @@ public class FeederProperties {
 
     private String cbMsgSequenceName = "ACETP.BDOMO_GRM_TRD_CB_MSGS_DB_ID_Test";
     private String clBusinessFileSequenceName = "ACETP.SEQ_CL_BUSINESS_FILE_ID";
+    private final Mq mq = new Mq();
 
     public long getPollIntervalMs() {
         return pollIntervalMs;
@@ -120,5 +121,48 @@ public class FeederProperties {
 
     public void setClBusinessFileSequenceName(String clBusinessFileSequenceName) {
         this.clBusinessFileSequenceName = clBusinessFileSequenceName;
+    }
+
+    public Mq getMq() {
+        return mq;
+    }
+
+    public static class Mq {
+        private boolean enabled = false;
+        private String queueName = "";
+        private boolean purgeOnStartupEnabled = false;
+        private Map<String, String> branchTemplates = new LinkedHashMap<>();
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getQueueName() {
+            return queueName;
+        }
+
+        public void setQueueName(String queueName) {
+            this.queueName = queueName;
+        }
+
+        public boolean isPurgeOnStartupEnabled() {
+            return purgeOnStartupEnabled;
+        }
+
+        public void setPurgeOnStartupEnabled(boolean purgeOnStartupEnabled) {
+            this.purgeOnStartupEnabled = purgeOnStartupEnabled;
+        }
+
+        public Map<String, String> getBranchTemplates() {
+            return branchTemplates;
+        }
+
+        public void setBranchTemplates(Map<String, String> branchTemplates) {
+            this.branchTemplates = branchTemplates;
+        }
     }
 }

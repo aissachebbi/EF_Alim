@@ -1,0 +1,25 @@
+spring:
+  config:
+    activate:
+      on-profile: mqfeeder
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+app:
+  feeder:
+    mq:
+      enabled: true
+      purge-on-startup-enabled: ${MQ_PURGE_ON_STARTUP_ENABLED:false}
+
+# ==========================================
+# Configuration IBM MQ pour Spring Boot 3
+# ==========================================
+ibm:
+  mq:
+    queue-manager: ${IBM_MQ_QUEUE_MANAGER:QM1}
+    conn-name: ${IBM_MQ_CONN_NAME:localhost(1414)}
+    channel: ${IBM_MQ_CHANNEL:DEV.APP.SVRCONN}
+    user: ${IBM_MQ_USER:app}
+    password: ${IBM_MQ_PASSWORD:QM1}
+    transport-type: ${IBM_MQ_TRANSPORT_TYPE:client}

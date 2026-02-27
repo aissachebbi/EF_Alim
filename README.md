@@ -1,10 +1,11 @@
-# CB MSG Feeder (Spring Boot + JDBC, Java 17)
+# CB MSG Feeder (Spring Boot + JDBC/MQ, Java 17)
 
 ## Objectif
 
 Application Spring Boot qui exécute un poller configurable et alimente:
 - `ACETP.CB_MSG`
 - `ACETP.CL_BUSINESS_MTM_IN`
+- ou une queue IBM MQ (profil `mqfeeder`)
 
 À chaque cycle:
 1. Calculer le volume de messages (fixe `N` ou aléatoire `1..N` selon la conf).
@@ -126,7 +127,28 @@ Exemple d'ordre manuel:
 
 ```bash
 mvn spring-boot:run
+
+# Mode MQ
+mvn spring-boot:run -Dspring-boot.run.profiles=mqfeeder
 ```
+
+## Profil `mqfeeder` (IBM MQ, sans TLS)
+
+- Le profil `mqfeeder` force automatiquement `app.feeder.mq.enabled=true`.
+- Les templates sont configurés par branche dans `app.feeder.mq.branch-templates`.
+- La queue cible est définie via `app.feeder.mq.queue-name`.
+- `app.feeder.mq.purge-on-startup-enabled=true` permet de purger automatiquement la queue au démarrage (même logique que `mqQueuePurge.purge()`).
+- La connexion IBM MQ est configurée dans `application-mqfeeder.yml` via `ibm.mq.*`.
+
+## Purge JMX de la queue MQ
+
+Un endpoint Actuator JMX est exposé en profil `mqfeeder`:
+
+- `mqQueuePurge.purge()`
+
+Cet endpoint consomme les messages de la queue configurée (`app.feeder.mq.queue-name`) jusqu'à épuisement, puis retourne le nombre de messages purgés.
+
+Des logs explicites sont émis pour chaque purge (début/fin, queue ciblée, nombre de messages purgés), y compris lors du purge automatique au démarrage.
 
 ## Séquences Oracle et application.yml
 

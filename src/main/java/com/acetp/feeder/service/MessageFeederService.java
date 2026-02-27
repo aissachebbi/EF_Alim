@@ -8,8 +8,9 @@ import com.acetp.feeder.repository.ClBusinessMtmInRepository;
 import com.acetp.feeder.repository.IdGeneratorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,27 +25,29 @@ public class MessageFeederService {
 
     private final FeederProperties feederProperties;
     private final BranchRegistry branchRegistry;
-    private final IdGeneratorRepository idGeneratorRepository;
-    private final CbMsgRepository cbMsgRepository;
-    private final ClBusinessMtmInRepository clBusinessMtmInRepository;
+    private final ObjectProvider<IdGeneratorRepository> idGeneratorRepository;
+    private final ObjectProvider<CbMsgRepository> cbMsgRepository;
+    private final ObjectProvider<ClBusinessMtmInRepository> clBusinessMtmInRepository;
+    private final ObjectProvider<MqMessagePublisher> mqMessagePublisher;
 
     private final AtomicLong totalInsertedSinceStartup = new AtomicLong(0);
 
     public MessageFeederService(
             FeederProperties feederProperties,
             BranchRegistry branchRegistry,
-            IdGeneratorRepository idGeneratorRepository,
-            CbMsgRepository cbMsgRepository,
-            ClBusinessMtmInRepository clBusinessMtmInRepository
+            ObjectProvider<IdGeneratorRepository> idGeneratorRepository,
+            ObjectProvider<CbMsgRepository> cbMsgRepository,
+            ObjectProvider<ClBusinessMtmInRepository> clBusinessMtmInRepository,
+            ObjectProvider<MqMessagePublisher> mqMessagePublisher
     ) {
         this.feederProperties = feederProperties;
         this.branchRegistry = branchRegistry;
         this.idGeneratorRepository = idGeneratorRepository;
         this.cbMsgRepository = cbMsgRepository;
         this.clBusinessMtmInRepository = clBusinessMtmInRepository;
+        this.mqMessagePublisher = mqMessagePublisher;
     }
 
-    @Transactional
     public void executeOneRun() {
         int totalPlanned = feederProperties.isBranchDistributionEnabled()
                 ? feederProperties.getMaxMessagesPerRun()
@@ -82,6 +85,11 @@ public class MessageFeederService {
 
         if (feederProperties.isBranchDistributionEnabled()) {
             List<BranchRegistry.BranchAllocation> allocations = branchRegistry.computeBranchAllocations(totalPlanned);
+            Map<String, Integer> weightedPlanByBranch = new LinkedHashMap<>();
+            for (BranchRegistry.BranchAllocation allocation : allocations) {
+                weightedPlanByBranch.put(allocation.branchRef().branchCode(), allocation.count());
+            }
+            LOGGER.info("Plan de pondération par branche pour ce cycle: {}", weightedPlanByBranch);
 
             for (BranchRegistry.BranchAllocation allocation : allocations) {
                 BranchRegistry.BranchRef branchRef = allocation.branchRef();
@@ -98,7 +106,7 @@ public class MessageFeederService {
                         return;
                     }
 
-                    insertOneMessage(branchRef);
+                    publishOneMessage(branchRef);
                     insertedThisRun++;
                     totalInsertedSinceStartup.incrementAndGet();
                     insertedLinesByFlow.merge(branchRef.branchCode() + "|" + branchRef.branchName(), 1, Integer::sum);
@@ -117,7 +125,7 @@ public class MessageFeederService {
                 }
 
                 BranchRegistry.BranchRef branchRef = resolveBranchForRun();
-                insertOneMessage(branchRef);
+                publishOneMessage(branchRef);
                 insertedThisRun++;
                 totalInsertedSinceStartup.incrementAndGet();
                 insertedLinesByFlow.merge(branchRef.branchCode() + "|" + branchRef.branchName(), 1, Integer::sum);
@@ -141,13 +149,33 @@ public class MessageFeederService {
         );
     }
 
-    private void insertOneMessage(BranchRegistry.BranchRef branchRef) {
-        long cbMsgId = idGeneratorRepository.nextValue(feederProperties.getCbMsgSequenceName());
-        long fileId = idGeneratorRepository.nextValue(feederProperties.getClBusinessFileSequenceName());
+    private void publishOneMessage(BranchRegistry.BranchRef branchRef) {
+        if (feederProperties.getMq().isEnabled()) {
+            String template = feederProperties.getMq().getBranchTemplates().get(branchRef.branchCode());
+            if (!StringUtils.hasText(template)) {
+                throw new IllegalStateException("Aucun template configuré pour la branche " + branchRef.branchCode());
+            }
+            MqMessagePublisher publisher = mqMessagePublisher.getIfAvailable();
+            if (publisher == null) {
+                throw new IllegalStateException("Mode MQ actif mais MqMessagePublisher indisponible.");
+            }
+            publisher.publish(template);
+            return;
+        }
+
+        IdGeneratorRepository idRepository = idGeneratorRepository.getIfAvailable();
+        CbMsgRepository cbRepository = cbMsgRepository.getIfAvailable();
+        ClBusinessMtmInRepository clRepository = clBusinessMtmInRepository.getIfAvailable();
+        if (idRepository == null || cbRepository == null || clRepository == null) {
+            throw new IllegalStateException("Mode DB actif mais les repositories JDBC sont indisponibles.");
+        }
+
+        long cbMsgId = idRepository.nextValue(feederProperties.getCbMsgSequenceName());
+        long fileId = idRepository.nextValue(feederProperties.getClBusinessFileSequenceName());
         long msgId = cbMsgId;
 
-        cbMsgRepository.insert(new CbMsgRecord(cbMsgId, branchRef.branchId()));
-        clBusinessMtmInRepository.insert(fileId, msgId, cbMsgId);
+        cbRepository.insert(new CbMsgRecord(cbMsgId, branchRef.branchId()));
+        clRepository.insert(fileId, msgId, cbMsgId);
     }
 
     private BranchRegistry.BranchRef resolveBranchForRun() {
