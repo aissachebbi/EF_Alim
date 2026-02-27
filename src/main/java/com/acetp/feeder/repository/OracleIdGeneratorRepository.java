@@ -1,9 +1,11 @@
 package com.acetp.feeder.repository;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Profile("!mqfeeder")
 public class OracleIdGeneratorRepository implements IdGeneratorRepository {
 
     private final JdbcTemplate jdbcTemplate;

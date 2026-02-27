@@ -1,6 +1,7 @@
 package com.acetp.feeder.repository;
 
 import com.acetp.feeder.domain.CbMsgRecord;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -8,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Repository
+@Profile("!mqfeeder")
 public class CbMsgRepository {
 
     private final JdbcTemplate jdbcTemplate;
