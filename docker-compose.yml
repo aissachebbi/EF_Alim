@@ -1,0 +1,16 @@
+services:
+  ibmmq:
+    image: icr.io/ibm-messaging/mq:latest
+    platform: linux/amd64 # Toujours indispensable pour ton Mac M-series
+    container_name: ibmmq_local
+    environment:
+      - LICENSE=accept
+      - MQ_QMGR_NAME=QM1 # Le nom du Queue Manager (déjà correct)
+      - MQ_APP_PASSWORD=QM1
+      - MQ_ADMIN_PASSWORD=admin # <-- Ajoute cette ligne !
+    ports:
+      - "1414:1414"
+      - "9443:9443"
+    volumes:
+      # On injecte ton fichier de configuration dans le conteneur
+      - ./config.mqsc:/etc/mqm/config.mqsc:ro
