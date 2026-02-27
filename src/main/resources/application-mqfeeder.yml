@@ -10,6 +10,7 @@ app:
   feeder:
     mq:
       enabled: true
+      queue-name: ${MQ_FEEDER_QUEUE_NAME:H73197_ATP.EXP.02.E}
       purge-on-startup-enabled: ${MQ_PURGE_ON_STARTUP_ENABLED:false}
 
 # ==========================================
@@ -19,7 +20,8 @@ ibm:
   mq:
     queue-manager: ${IBM_MQ_QUEUE_MANAGER:QM1}
     conn-name: ${IBM_MQ_CONN_NAME:localhost(1414)}
-    channel: ${IBM_MQ_CHANNEL:DEV.APP.SVRCONN}
+    channel: ${IBM_MQ_CHANNEL:CLIATP01.FRATP01T.T1}
     user: ${IBM_MQ_USER:app}
     password: ${IBM_MQ_PASSWORD:QM1}
     transport-type: ${IBM_MQ_TRANSPORT_TYPE:client}
+    ccsid: ${IBM_MQ_CCSID:819}

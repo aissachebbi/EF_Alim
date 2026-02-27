@@ -213,9 +213,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=mqfeeder
 
 - Le profil `mqfeeder` force automatiquement `app.feeder.mq.enabled=true`.
 - Les templates sont configurés par branche dans `app.feeder.mq.branch-templates`.
-- La queue cible est définie via `app.feeder.mq.queue-name`.
+- La queue cible est définie via `app.feeder.mq.queue-name` (défaut: `H73197_ATP.EXP.02.E`).
 - `app.feeder.mq.purge-on-startup-enabled=true` permet de purger automatiquement la queue au démarrage (même logique que `mqQueuePurge.purge()`).
-- La connexion IBM MQ est configurée dans `application-mqfeeder.yml` via `ibm.mq.*`.
+- La connexion IBM MQ est configurée dans `application-mqfeeder.yml` via `ibm.mq.*` avec défauts alignés: `queue-manager=QM1`, `channel=CLIATP01.FRATP01T.T1`, `ccsid=819`.
 
 ## Purge JMX de la queue MQ
 

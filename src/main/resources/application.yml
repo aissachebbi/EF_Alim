@@ -50,7 +50,7 @@ app:
     cl-business-file-sequence-name: ${FEEDER_CL_FILE_SEQ:ACETP.SEQ_CL_BUSINESS_FILE_ID}
     mq:
       enabled: ${MQ_FEEDER_ENABLED:false}
-      queue-name: ${MQ_FEEDER_QUEUE_NAME:}
+      queue-name: ${MQ_FEEDER_QUEUE_NAME:H73197_ATP.EXP.02.E}
       purge-on-startup-enabled: ${MQ_PURGE_ON_STARTUP_ENABLED:false}
       branch-templates:
         DEFF: ${MQ_TEMPLATE_DEFF:}
