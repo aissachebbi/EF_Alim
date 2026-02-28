@@ -34,11 +34,11 @@ app:
     poll-interval-ms: ${FEEDER_POLL_INTERVAL_MS:1000}
     max-messages-per-run: ${FEEDER_MAX_MESSAGES_PER_RUN:2000}
     fixed-limit: ${FEEDER_FIXED_LIMIT:true}
-    force-specific-branch-enabled: ${FEEDER_FORCE_SPECIFIC_BRANCH_ENABLED:true}
+    force-specific-branch-enabled: ${FEEDER_FORCE_SPECIFIC_BRANCH_ENABLED:false}
     forced-branch-code: ${FEEDER_FORCED_BRANCH_CODE:DEFF}
     stop-on-max-total-messages-enabled: ${FEEDER_STOP_ON_MAX_TOTAL_MESSAGES_ENABLED:true}
-    max-total-messages: ${FEEDER_MAX_TOTAL_MESSAGES:500}
-    branch-distribution-enabled: ${FEEDER_BRANCH_DISTRIBUTION_ENABLED:false}
+    max-total-messages: ${FEEDER_MAX_TOTAL_MESSAGES:1000000}
+    branch-distribution-enabled: ${FEEDER_BRANCH_DISTRIBUTION_ENABLED:true}
     branch-distribution-percentages:
       DEFF: ${FEEDER_BRANCH_PCT_DEFF:30}
       ITMM: ${FEEDER_BRANCH_PCT_ITMM:10}

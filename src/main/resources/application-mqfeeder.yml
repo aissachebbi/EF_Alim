@@ -27,6 +27,10 @@ ibm:
     password: ${IBM_MQ_PASSWORD:QM1}
     transport-type: ${IBM_MQ_TRANSPORT_TYPE:client}
     ccsid: ${IBM_MQ_CCSID:819}
+    additional-properties:
+      # Résolution courante pour MQRC_NOT_AUTHORIZED (2035) en dev
+      # Force l'utilisation du mot de passe si CHLAUTH est actif
+      com.ibm.mq.cfg.jmqi.libproc: 0
 management:
   health:
     jms:
